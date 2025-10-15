@@ -1,38 +1,18 @@
-import Constants from 'expo-constants';
+import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
-const isExpoGo = Constants.appOwnership === 'expo';
-
-type NotificationsModule = typeof import('expo-notifications');
-
-let notificationsModulePromise: Promise<NotificationsModule> | null = null;
-
-async function getNotificationsModule(): Promise<NotificationsModule | null> {
-  if (isExpoGo) {
-    return null;
-  }
-  if (!notificationsModulePromise) {
-    notificationsModulePromise = import('expo-notifications');
-  }
-  return notificationsModulePromise;
-}
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+    // iOS 16+ behavior fields
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
 
 export async function initNotifications() {
-  const Notifications = await getNotificationsModule();
-  if (!Notifications) {
-    return false;
-  }
-
-  Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldShowAlert: true,
-      shouldPlaySound: false,
-      shouldSetBadge: false,
-      shouldShowBanner: true,
-      shouldShowList: true,
-    }),
-  });
-
   const { status: existingStatus } = await Notifications.getPermissionsAsync();
   let finalStatus = existingStatus;
   if (existingStatus !== 'granted') {
@@ -59,10 +39,6 @@ export async function initNotifications() {
 }
 
 export async function notifyNewPost() {
-  const Notifications = await getNotificationsModule();
-  if (!Notifications) {
-    return;
-  }
   await Notifications.scheduleNotificationAsync({
     content: {
       title: 'New posts available',
