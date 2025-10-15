@@ -1,8 +1,9 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
+import Constants from 'expo-constants';
 
-const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
-
+// Prefer compile-time public env; fallback to Constants in dev
+const API_URL = "http://192.168.1.4:8000";
 const api = axios.create({
   baseURL: API_URL + '/api',
   headers: {
